@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import requests
 import threading
 import time
@@ -7,6 +6,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import threading
 _thread_local = threading.local()
+
+MODE = int(input("Enter mode (1 for URL1, 2 for URL2): "))
 
 def get_session():
     if not hasattr(_thread_local, 'session'):
@@ -22,9 +23,10 @@ def get_session():
         _thread_local.session = s
     return _thread_local.session
 
-URL = "https://113.61.152.89:30678/edge/register"
-TOTAL_REQUESTS = 10000     # 總共要發送的請求數
-CONCURRENCY = 10         # 同時併發的執行緒數
+URL1 = "https://127.0.0.1/edge/signin"
+URL2 = "https://113.61.152.89:30678/edge/signup"
+TOTAL_REQUESTS = 10000 
+CONCURRENCY = 20      
 
 def generate_serial_number() -> str:
     """產生格式 RED-XXXXXXXX 的隨機大寫十六進位序號。"""
@@ -33,14 +35,19 @@ def generate_serial_number() -> str:
     return f"RED-{body}"
 
 def make_request(idx: int):
-    # 每次呼叫都產生新的 version 與 serial_number
     payload = {
         "version": "1.0.0",
         "serial_number": generate_serial_number()
     }
     try:
         session = get_session()
-        r = session.post(URL, json=payload, timeout=10)
+        if MODE == 1:
+            r = session.post(URL1, json=payload, timeout=10)
+        elif MODE == 2:
+            r = session.post(URL2, json=payload, timeout=10)
+        else:
+            # default to URL1 if invalid mode
+            r = session.post(URL1, json=payload, timeout=10)
         return r.status_code, r.text
     except Exception as e:
         return None, str(e)
@@ -48,7 +55,6 @@ def make_request(idx: int):
 def main():
     start = time.perf_counter()
 
-    # 使用 ThreadPoolExecutor 來模擬併發
     with ThreadPoolExecutor(max_workers=CONCURRENCY) as executor:
         futures = [
             executor.submit(make_request, i)
@@ -60,7 +66,7 @@ def main():
             if status is None:
                 print("Error:", body)
             else:
-                print("OK:", status)
+                print("OK:", status, body)
 
     duration = time.perf_counter() - start
     print(f"Completed {TOTAL_REQUESTS} requests in {duration:.2f}s "

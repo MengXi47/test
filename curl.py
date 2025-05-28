@@ -32,7 +32,7 @@ user_name_cached: Optional[str] = None
 
 def edge_register() -> None:
     payload = {"version": EDGE_VERSION, "serial_number": EDGE_SERIAL}
-    r = requests.post(f"{BASE_URL}/edge/register",
+    r = requests.post(f"{BASE_URL}/edge/signup",
                       headers=HEADERS, json=payload, verify=VERIFY_SSL)
     print(f"edge/register → HTTP {r.status_code}")
     print(r.text)
@@ -44,7 +44,7 @@ def user_register() -> None:
     user_name  = input("User name: ")
     password   = input("Password: ")
     payload = {"email": email, "user_name": user_name, "password": password}
-    r = requests.post(f"{BASE_URL}/user/register",
+    r = requests.post(f"{BASE_URL}/user/signup",
                       headers=HEADERS, json=payload, verify=VERIFY_SSL)
     if not r.ok:
         die("user/register 失敗！", r)
@@ -65,7 +65,7 @@ def ios_register() -> None:
         "apns_token":    APNS_TOKEN,
         "device_name":   DEVICE_NAME
     }
-    r = requests.post(f"{BASE_URL}/ios/register",
+    r = requests.post(f"{BASE_URL}/ios/signup",
                       headers=HEADERS, json=payload, verify=VERIFY_SSL)
     if not r.ok:
         die("ios/register 失敗！", r)
@@ -80,7 +80,7 @@ def user_login() -> None:
     email    = input("Email: ")
     password = input("Password: ")
     payload  = {"email": email, "password": password}
-    r = requests.post(f"{BASE_URL}/user/login",
+    r = requests.post(f"{BASE_URL}/user/signin",
                       headers=HEADERS, json=payload, verify=VERIFY_SSL)
     if not r.ok:
         die("user/login 失敗！", r)
