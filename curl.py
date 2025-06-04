@@ -5,7 +5,7 @@ import requests
 from typing import Optional, List
 
 VERIFY_SSL = False
-BASE_URL = "https://113.61.152.89:30678"
+BASE_URL = "https://127.0.0.1"
 
 # 固定參數
 EDGE_SERIAL  = "RED-AAAAAABB"
@@ -49,9 +49,7 @@ def user_register() -> None:
     if not r.ok:
         die("user/register 失敗！", r)
         return
-    user_id = r.json().get("user_id")
-    user_name_cached = user_name
-    print(f"user_id = {user_id}")
+    print(r.json)
 
 def ios_register() -> None:
     global ios_device_id
@@ -90,6 +88,7 @@ def user_login() -> None:
     user_id  = data.get("user_id")
     user_name_cached = data.get("user_name")
     serial_numbers[:] = data.get("serial_number", [])  # 取出序號陣列
+    print(data)
     print("登入成功！")
     print(f"user_id   = {user_id}")
     if user_name_cached:
